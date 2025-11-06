@@ -1,0 +1,9 @@
+# Ignore the secret API key
+.env
+
+# Ignore the 200MB+ virtual environment
+venv/
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
