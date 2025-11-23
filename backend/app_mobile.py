@@ -15,7 +15,7 @@ from dotenv import load_dotenv # <-- NEW: Import dotenv
 load_dotenv() 
 
 app = Flask(__name__)
-# Allow all origins for mobile devices (development only)
+# Mobile access: Allow all origins (development only)
 CORS(app, resources={r"/*": {"origins": "*"}})
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
@@ -162,5 +162,5 @@ def get_ai_tip():
         return jsonify({"status": "error", "message": "Failed to parse AI response."}), 500
 
 if __name__ == "__main__":
-    # Bind to all interfaces so mobile devices on the same network can reach the API
+    # Mobile access: Bind to all network interfaces
     app.run(host='0.0.0.0', port=5000, debug=True)

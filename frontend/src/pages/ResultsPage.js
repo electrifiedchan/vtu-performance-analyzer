@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import GradeDonutChart from '../components/GradeDonutChart';
 import TrendLineChart from '../components/TrendLineChart';
 
-// --- Helper functions ---
+// --- Helper Functions ---
 const getPointsFromTotal = (total) => {
   const marks = parseInt(total, 10);
   if (isNaN(marks)) return 0;
@@ -21,16 +21,20 @@ const getResultFromTotal = (total) => (parseInt(total, 10) >= 40 ? 'P' : 'F');
 
 function ResultsPage({ resultsData, onReset }) {
   
-  const [whatIfMode, setWhatIfMode] = useState(false);
-  const [whatIfSubjects, setWhatIfSubjects] = useState(resultsData.subjects || []);
+  // --- AI Tip State ---
   const [aiTip, setAiTip] = useState("");
   const [tipLoading, setTipLoading] = useState(false);
   const [tipError, setTipError] = useState("");
+  
+  // --- What-If Mode State ---
+  const [whatIfMode, setWhatIfMode] = useState(false);
+  const [whatIfSubjects, setWhatIfSubjects] = useState(resultsData.subjects || []);
 
   useEffect(() => {
     setWhatIfSubjects(resultsData.subjects || []);
   }, [resultsData.subjects]);
   
+  // --- What-If Stats Calculation ---
   const whatIfStats = useMemo(() => {
     let totalPoints = 0;
     let totalCredits = 0;
@@ -42,13 +46,10 @@ function ResultsPage({ resultsData, onReset }) {
 
     const sgpa = totalCredits > 0 ? parseFloat((totalPoints / totalCredits).toFixed(2)) : 0;
     
-    return {
-      sgpa,
-      totalCredits,
-      totalPoints
-    };
+    return { sgpa, totalCredits, totalPoints };
   }, [whatIfSubjects]);
 
+  // --- What-If Change Handler ---
   const handleWhatIfChange = (index, newTotal) => {
     const newPoints = getPointsFromTotal(newTotal);
     const newResult = getResultFromTotal(newTotal);
@@ -68,10 +69,7 @@ function ResultsPage({ resultsData, onReset }) {
     );
   };
   
-  const handleToggleMode = (e) => {
-    setWhatIfMode(e.target.checked);
-  };
-
+  // --- AI Tip Fetcher ---
   const fetchAiTip = async () => {
     setTipLoading(true);
     setAiTip("");
@@ -98,6 +96,7 @@ function ResultsPage({ resultsData, onReset }) {
     }
   };
   
+  // --- Stats Calculation ---
   const stats = useMemo(() => {
     const subjects = resultsData.subjects || [];
     const passedSubjects = subjects.filter(s => s.result === 'P').length;
@@ -109,6 +108,7 @@ function ResultsPage({ resultsData, onReset }) {
     return { passedSubjects, failedSubjects, totalSubjects, passPercentage };
   }, [resultsData.subjects]);
 
+  // --- Prediction Renderer ---
   const renderPrediction = () => {
     if (resultsData.prediction && resultsData.prediction.predicted_sgpa) {
       return (
@@ -139,6 +139,49 @@ function ResultsPage({ resultsData, onReset }) {
       </>
     );
   };
+  
+  // --- Export CSV Handler (Always EXPORTS ACTUAL DATA) ---
+  const handleExportCSV = () => {
+    const subjects = resultsData.subjects || [];
+    
+    // Headers: USN, Name, subject codes, SGPA
+    const headers = ["USN", "Name"];
+    subjects.forEach(subject => {
+      headers.push(subject.code);
+    });
+    headers.push("SGPA");
+    
+    // Data: USN, Name, actual marks, actual sgpa
+    const data = [
+      (resultsData.usn || "N/A"),
+      resultsData.name || "N/A"
+    ];
+    
+    subjects.forEach(subject => {
+      data.push(subject.total ?? "—");
+    });
+    
+    data.push(resultsData.sgpa ? resultsData.sgpa.toFixed(2) : "N/A");
+    
+    // Build CSV
+    let csvContent = headers.join(",") + "\n" + data.join(",") + "\n";
+    
+    // Download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", `SGPA_Report_${resultsData.usn || 'Student'}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  
+  // --- Print Handler ---
+  const handlePrint = () => {
+    window.print();
+  };
 
   const displaySubjects = whatIfMode ? whatIfSubjects : (resultsData.subjects || []);
 
@@ -149,18 +192,24 @@ function ResultsPage({ resultsData, onReset }) {
         <h2>✅ Calculation Results</h2>
         <div className="header-buttons">
           <button 
-            onClick={() => { /* handleExportCSV */ }} 
+            onClick={handleExportCSV} 
             className="export-button csv"
+            aria-label="Export results to CSV file"
           >
-            📥 Export CSV
+            📊 Download Report
           </button>
           <button 
-            onClick={() => window.print()} 
+            onClick={handlePrint} 
             className="export-button pdf"
+            aria-label="Print or save as PDF"
           >
             🖨️ Print / PDF
           </button>
-          <button onClick={onReset} className="reset-button">
+          <button 
+            onClick={onReset} 
+            className="reset-button"
+            aria-label="Calculate again with new PDF"
+          >
             🔄 Calculate Again
           </button>
         </div>
@@ -178,7 +227,7 @@ function ResultsPage({ resultsData, onReset }) {
         
         {whatIfMode ? (
           <h3 className="sgpa-formula what-if-formula">
-            {whatIfStats.totalPoints.toFixed(2)} ÷ {whatIfStats.totalCredits} = <span className="sgpa-value what-if-value">{whatIfStats.sgpa}</span>
+            {whatIfStats.totalPoints.toFixed(2)} ÷ {whatIfStats.totalCredits} = <span className="sgpa-value what-if-value">{whatIfStats.sgpa.toFixed(2)}</span>
           </h3>
         ) : (
           <h3 className="sgpa-formula">
@@ -228,9 +277,9 @@ function ResultsPage({ resultsData, onReset }) {
       <div className="charts-grid">
         <div className="chart-box">
           <h4>📊 Grade Distribution</h4>
-          {resultsData.subjects && resultsData.subjects.length > 0 ? (
+          {displaySubjects.length > 0 ? (
             <div className="chart-wrapper">
-              <GradeDonutChart subjectData={resultsData.subjects} />
+              <GradeDonutChart subjectData={displaySubjects} />
             </div>
           ) : (
             <p className="no-data">No subject data available</p>
@@ -249,6 +298,7 @@ function ResultsPage({ resultsData, onReset }) {
             onClick={fetchAiTip} 
             className="ai-button" 
             disabled={tipLoading}
+            aria-label="Get AI analysis from Gemini"
           >
             ✨ Get AI Analysis
           </button>
@@ -265,6 +315,7 @@ function ResultsPage({ resultsData, onReset }) {
             <button 
               onClick={() => setAiTip("")}
               className="ai-refresh"
+              aria-label="Get another AI tip"
             >
               🔄 Get Another Tip
             </button>
@@ -277,18 +328,18 @@ function ResultsPage({ resultsData, onReset }) {
           <h4>📚 Subject Breakdown</h4>
           <div className="what-if-toggle">
             <label htmlFor="what-if-check">
-              <span className="what-if-icon">🔮</span> "What If?" Mode:
+              🔮 "What If?" Mode:
             </label>
             <input 
               type="checkbox" 
               id="what-if-check"
               checked={whatIfMode}
-              onChange={handleToggleMode}
+              onChange={(e) => setWhatIfMode(e.target.checked)}
             />
           </div>
         </div>
         
-        {displaySubjects && displaySubjects.length > 0 ? (
+        {displaySubjects.length > 0 ? (
           <div className="table-wrapper">
             <table>
               <caption className="sr-only">
@@ -320,7 +371,7 @@ function ResultsPage({ resultsData, onReset }) {
                     <td data-label="Credits">{subject.credits}</td>
                     
                     <td data-label="Marks">
-                      {whatIfMode ? (
+                      {whatIfMode && subject.credits > 0 ? (
                         <input 
                           type="number" 
                           className="what-if-input"

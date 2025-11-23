@@ -1,7 +1,8 @@
 /* ===================================================================
-   COMPLETE FINAL CSS - SGPA CALCULATOR (PRODUCTION READY)
+   COMPLETE FINAL CSS - SGPA CALCULATOR
    =================================================================== */
 
+/* --- 1. CSS Variables --- */
 :root {
   --bg-primary: #0d1117;
   --bg-secondary: #161b22;
@@ -13,25 +14,25 @@
   --accent-hover: #0056b3;
   --success: #238636;
   --danger: #ff4d4d;
-  --warning: #f0a000;
-  --what-if: #f0a000;
-  --ai-purple: #8957e5;
+  --warning: #f0a000; /* For FCD */
+  --what-if: #f0a000; /* What-if color */
+  --ai-purple: #8957e5; /* For AI features */
   --border-radius: 8px;
   --border-color: rgba(255, 255, 255, 0.1);
 }
 
+/* --- 2. Global Styles --- */
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 .App {
@@ -55,6 +56,7 @@ h1 {
   margin: 0 0 0.5rem 0;
 }
 
+/* --- 3. Upload Page --- */
 .upload-page {
   width: 100%;
   max-width: 600px;
@@ -62,8 +64,6 @@ h1 {
 
 .upload-container {
   width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
 }
 
 .page-header {
@@ -100,8 +100,6 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
 }
 
 .helper-text {
@@ -109,6 +107,7 @@ h1 {
   font-weight: 400;
   color: var(--text-secondary);
   font-style: italic;
+  margin-left: 10px;
 }
 
 .helper-text.required {
@@ -116,6 +115,7 @@ h1 {
   font-weight: 500;
 }
 
+/* SGPA Inputs Grid */
 .sgpa-inputs-container {
   display: grid;
   grid-template-columns: 1fr;
@@ -202,6 +202,7 @@ h1 {
 .clear-button:hover:not(:disabled) {
   color: var(--text-primary);
   background: rgba(255, 255, 255, 0.05);
+  transform: none;
   box-shadow: none;
 }
 
@@ -215,6 +216,7 @@ h1 {
   cursor: not-allowed;
 }
 
+/* File Input */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -251,6 +253,10 @@ input[type="file"]::file-selector-button:hover {
   border-color: var(--accent);
 }
 
+input[type="file"]:hover:not(:disabled)::file-selector-button {
+  background-color: var(--bg-tertiary);
+}
+
 input[type="file"]:focus {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -268,6 +274,7 @@ input[type="file"]:focus {
   to { opacity: 1; }
 }
 
+/* Error Messages */
 .error-text {
   display: flex;
   align-items: center;
@@ -304,10 +311,7 @@ input[type="file"]:focus {
   margin-top: 20px;
   text-align: left;
   animation: slideDown 0.3s ease;
-}
-
-.error-banner-content {
-  flex: 1;
+  word-wrap: break-word;
 }
 
 .dismiss-error {
@@ -325,6 +329,8 @@ input[type="file"]:focus {
 
 .dismiss-error:hover:not(:disabled) {
   background: rgba(255, 77, 77, 0.2);
+  transform: none;
+  box-shadow: none;
   color: var(--text-primary);
   border-radius: 4px;
 }
@@ -335,6 +341,24 @@ input[type="file"]:focus {
   border-radius: 4px;
 }
 
+.loading-text {
+  font-weight: 500;
+  margin-top: 1rem;
+  color: var(--accent);
+  text-align: center;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* --- 4. Buttons --- */
 button {
   background-color: var(--accent);
   color: white;
@@ -352,11 +376,6 @@ button:hover:not(:disabled) {
   background-color: var(--accent-hover);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.5);
-}
-
-button:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
 }
 
 button:disabled {
@@ -382,21 +401,21 @@ button:disabled {
   cursor: wait;
 }
 
+/* --- 5. Results Page --- */
 .results-container {
   width: 90%;
   max-width: 1200px;
   margin-top: 40px;
-  margin-bottom: 40px;
   background-color: var(--bg-tertiary);
   padding: 30px;
   border-radius: var(--border-radius);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
   text-align: left;
   border: 1px solid var(--border-color);
-  animation: slideInResults 0.4s ease-out;
+  animation: slideIn 0.4s ease-out;
 }
 
-@keyframes slideInResults {
+@keyframes slideIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
@@ -409,15 +428,14 @@ button:disabled {
   padding-bottom: 15px;
   margin-bottom: 20px;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 10px;
 }
 
 .results-header h2 {
   margin: 0;
   color: white;
   font-size: 1.8rem;
-  flex: 1;
-  min-width: 200px;
+  flex-grow: 1;
 }
 
 .header-buttons {
@@ -434,6 +452,8 @@ button.export-button {
   padding: 8px 16px;
   box-shadow: none;
   font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 button.reset-button:hover:not(:disabled),
@@ -444,19 +464,12 @@ button.export-button:hover:not(:disabled) {
   color: white;
 }
 
-button.reset-button:focus,
-button.export-button:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
 button.export-button.csv {
   border: 1px solid var(--success);
   color: var(--success);
 }
-
 button.export-button.csv:hover:not(:disabled) {
-  background-color: rgba(35, 134, 54, 0.15);
+  background-color: rgba(35, 134, 54, 0.2);
   color: var(--success);
 }
 
@@ -464,11 +477,11 @@ button.export-button.pdf {
   border: 1px solid var(--danger);
   color: var(--danger);
 }
-
 button.export-button.pdf:hover:not(:disabled) {
-  background-color: rgba(255, 77, 77, 0.15);
+  background-color: rgba(255, 77, 77, 0.2);
   color: var(--danger);
 }
+
 
 .student-info {
   background-color: var(--bg-secondary);
@@ -484,7 +497,6 @@ button.export-button.pdf:hover:not(:disabled) {
   margin: 0;
   color: var(--text-secondary);
 }
-
 .student-info p strong {
   color: var(--text-primary);
 }
@@ -513,7 +525,14 @@ button.export-button.pdf:hover:not(:disabled) {
 .sgpa-formula .sgpa-value {
   color: var(--success);
 }
+/* NEW: What-If Value */
+.sgpa-formula .what-if-value {
+  color: var(--what-if);
+  transition: color 0.3s ease;
+}
 
+
+/* CGPA Section */
 .cgpa-section {
   display: flex;
   justify-content: space-around;
@@ -522,12 +541,6 @@ button.export-button.pdf:hover:not(:disabled) {
   margin-top: 20px;
   padding-top: 20px;
   border-top: 1px solid var(--border-color);
-  animation: fadeInUpResults 0.5s ease-out;
-}
-
-@keyframes fadeInUpResults {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 .cgpa-section .stat-item {
@@ -537,13 +550,13 @@ button.export-button.pdf:hover:not(:disabled) {
 .classification-badge {
   font-size: 1.5rem;
   font-weight: 600;
-  padding: 6px 14px;
+  padding: 4px 12px;
   border-radius: var(--border-radius);
-  display: inline-block;
+  color: var(--bg-primary); 
   background-color: var(--warning);
-  color: #000000;
 }
 
+/* Quick Stats (Semester) */
 .quick-stats {
   display: flex;
   justify-content: center;
@@ -572,15 +585,10 @@ button.export-button.pdf:hover:not(:disabled) {
   font-weight: 600;
   color: white;
 }
+.stat-success { color: var(--success); }
+.stat-danger { color: var(--danger); }
 
-.stat-success {
-  color: var(--success);
-}
-
-.stat-danger {
-  color: var(--danger);
-}
-
+/* Charts */
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -627,19 +635,16 @@ button.export-button.pdf:hover:not(:disabled) {
   text-align: center;
   margin-top: 20px;
 }
-
 .prediction-label {
   font-size: 1rem;
   color: var(--text-secondary);
 }
-
 .prediction-value {
   font-size: 2.5rem;
   font-weight: 700;
   color: var(--accent);
   margin: 5px 0 0 0;
 }
-
 .prediction-value-small {
   font-size: 1.5rem;
   font-weight: 600;
@@ -653,6 +658,175 @@ button.export-button.pdf:hover:not(:disabled) {
   font-style: italic;
 }
 
+/* Table */
+.subjects-table-box {
+  background-color: var(--bg-secondary);
+  padding: 20px;
+  border-radius: var(--border-radius);
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  margin-bottom: 30px;
+}
+
+/* NEW: Table Header for What-If Toggle */
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.table-header h4 {
+  margin: 0;
+  color: white;
+  font-size: 1.1rem;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 10px;
+}
+
+/* NEW: What-If Toggle Switch */
+.what-if-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: var(--what-if);
+}
+
+.what-if-toggle label {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.what-if-toggle input[type="checkbox"] {
+  /* A simple, styled checkbox */
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--what-if);
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+.what-if-toggle input[type="checkbox"]:checked {
+  background-color: var(--what-if);
+}
+.what-if-toggle input[type="checkbox"]:checked::before {
+  content: '✓';
+  font-size: 14px;
+  color: var(--bg-primary);
+  position: absolute;
+  top: -2px;
+  left: 2px;
+  font-weight: bold;
+}
+
+/* NEW: What-If Input in table */
+.what-if-input {
+  width: 70px;
+  padding: 6px;
+  font-size: 1rem;
+  text-align: center;
+  background-color: var(--bg-primary);
+  color: var(--what-if);
+  border: 1px solid var(--what-if);
+  border-radius: 4px;
+}
+.what-if-input:focus {
+  outline: none;
+  background-color: var(--bg-secondary);
+  box-shadow: 0 0 0 3px rgba(240, 160, 0, 0.3);
+}
+/* Hide number input arrows */
+.what-if-input::-webkit-outer-spin-button,
+.what-if-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.what-if-input {
+  -moz-appearance: textfield;
+}
+
+
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+.table-wrapper::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+}
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 4px;
+}
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-hover);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  min-width: 700px;
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0, 0, 0, 0); border: 0;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s ease;
+}
+
+th {
+  background-color: var(--bg-tertiary);
+  color: white;
+  font-weight: 600;
+}
+
+td.subject-title { max-width: 250px; word-wrap: break-word; }
+tbody tr:hover { background-color: rgba(255, 255, 255, 0.03); }
+tr.failed-row {
+  background-color: rgba(255, 77, 77, 0.05);
+}
+tr.failed-row:hover {
+  background-color: rgba(255, 77, 77, 0.1);
+}
+
+.result-badge {
+  padding: 3px 8px; border-radius: 4px;
+  font-weight: 600; font-size: 0.85rem;
+}
+.result-pass {
+  background-color: rgba(35, 134, 54, 0.2);
+  color: var(--success);
+}
+.result-fail {
+  background-color: rgba(255, 77, 77, 0.2);
+  color: var(--danger);
+}
+
+tfoot tr {
+  background-color: var(--bg-tertiary);
+  font-weight: 700;
+  border-top: 2px solid var(--accent);
+}
+
+/* AI Tip Box */
 .ai-tip-box {
   background-color: var(--bg-secondary);
   padding: 20px;
@@ -662,7 +836,7 @@ button.export-button.pdf:hover:not(:disabled) {
   margin-bottom: 30px;
   display: flex;
   flex-direction: column;
-  animation: slideInResults 0.4s ease-out;
+  animation: slideIn 0.4s ease-out;
 }
 
 .ai-tip-box h4 {
@@ -701,33 +875,6 @@ button.export-button.pdf:hover:not(:disabled) {
   opacity: 0.6;
   transform: none;
   box-shadow: none;
-}
-
-.loading-text {
-  font-weight: 500;
-  margin-top: 1rem;
-  color: var(--accent);
-  text-align: center;
-  animation: pulse 1.5s infinite ease-in-out;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-.error-message {
-  color: var(--danger);
-  padding: 10px 15px;
-  background-color: rgba(255, 77, 77, 0.1);
-  border-radius: var(--border-radius);
-  border-left: 4px solid var(--danger);
-  margin-top: 10px;
-  font-weight: 500;
 }
 
 .ai-tip-text {
@@ -776,310 +923,104 @@ button.ai-refresh:focus {
   outline-offset: 2px;
 }
 
-.subjects-table-box {
-  background-color: var(--bg-secondary);
-  padding: 20px;
-  border-radius: var(--border-radius);
-  overflow-x: auto;
-  border: 1px solid var(--border-color);
-  margin-bottom: 30px;
-}
-
-.subjects-table-box h4 {
-  margin-top: 0;
-  color: white;
-  font-size: 1.1rem;
-  border-bottom: 2px solid var(--accent);
-  padding-bottom: 10px;
-  margin-bottom: 15px;
-}
-
-.table-wrapper {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.table-wrapper::-webkit-scrollbar {
-  height: 8px;
-}
-
-.table-wrapper::-webkit-scrollbar-track {
-  background: var(--bg-tertiary);
-  border-radius: 4px;
-}
-
-.table-wrapper::-webkit-scrollbar-thumb {
-  background: var(--ai-purple);
-  border-radius: 4px;
-}
-
-.table-wrapper::-webkit-scrollbar-thumb:hover {
-  background: #7a4ed9;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
-  min-width: 700px;
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
-}
-
-th, td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid var(--border-color);
-}
-
-th {
-  background-color: var(--bg-tertiary);
-  color: white;
-  font-weight: 600;
-}
-
-td.subject-title {
-  max-width: 250px;
-  word-wrap: break-word;
-}
-
-tbody tr {
-  transition: background-color 0.2s ease;
-}
-
-tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.03);
-}
-
-tr.failed-row {
-  background-color: rgba(255, 77, 77, 0.1);
-}
-
-tr.failed-row:hover {
-  background-color: rgba(255, 77, 77, 0.15);
-}
-
-.result-badge {
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-weight: 600;
-  font-size: 0.85rem;
-}
-
-.result-pass {
-  background-color: rgba(35, 134, 54, 0.2);
-  color: var(--success);
-}
-
-.result-fail {
-  background-color: rgba(255, 77, 77, 0.2);
-  color: var(--danger);
-}
-
-tfoot tr {
-  background-color: var(--bg-tertiary);
-  font-weight: 700;
-  border-top: 2px solid var(--accent);
-}
-
 .additional-info {
   margin-top: 20px;
   text-align: center;
   font-size: 1.1rem;
   color: var(--text-secondary);
 }
-
 .additional-info strong {
   color: var(--text-primary);
 }
 
+
+/* --- 6. Responsive Design --- */
 @media (max-width: 768px) {
-  .App-header {
-    padding: 20px 10px;
-  }
-  
-  .upload-page, .results-container {
-    width: 95%;
-    padding: 20px;
-  }
-  
-  .charts-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .student-info {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .results-header {
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .results-header h2 {
-    min-width: auto;
-  }
-  
-  .header-buttons {
-    width: 100%;
-    justify-content: center;
-  }
-  
-  button.reset-button,
-  button.export-button {
-    flex: 1;
-    min-width: 100px;
-  }
-  
-  table {
-    font-size: 0.85rem;
-    min-width: 600px;
-  }
-  
-  th, td {
-    padding: 8px 6px;
-  }
+  .App-header { padding: 20px 10px; }
+  .upload-page, .results-container { width: 95%; padding: 20px; }
+  .charts-grid { grid-template-columns: 1fr; }
+  .student-info { flex-direction: column; gap: 10px; }
+  table { font-size: 0.85rem; min-width: 600px; }
+  th, td { padding: 8px 6px; }
+  .results-header { flex-direction: column; gap: 15px; }
+  .header-buttons { justify-content: center; }
 }
 
 @media (max-width: 480px) {
-  h1 {
-    font-size: 1.8rem;
-  }
-  
-  .sgpa-highlight h3.sgpa-formula {
-    font-size: 1.5rem;
-  }
-  
-  .form-section {
-    padding: 16px;
-    margin-bottom: 16px;
-  }
-  
-  .section-title {
-    font-size: 1.1rem;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
-  }
-  
-  .helper-text {
-    margin-left: 0;
-  }
-  
-  input[type="file"]::file-selector-button {
-    padding: 8px 16px;
-    font-size: 0.85rem;
-  }
-  
-  .error-banner {
-    width: 95%;
-    padding: 0.875rem;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  
-  .dismiss-error {
-    align-self: flex-end;
-  }
-  
-  .quick-stats, .cgpa-section {
-    gap: 15px;
-  }
-  
-  .stat-value {
-    font-size: 1.3rem;
-  }
-  
-  .classification-badge {
-    font-size: 1.3rem;
-  }
-  
-  .header-buttons {
-    flex-direction: column;
-  }
-  
-  button.reset-button,
-  button.export-button {
-    width: 100%;
-  }
-  
-  .ai-tip-box {
-    padding: 16px;
-  }
-  
-  .ai-tip-text {
-    font-size: 0.9rem;
-    padding: 12px;
-  }
+  h1 { font-size: 1.8rem; }
+  .sgpa-highlight h3.sgpa-formula { font-size: 1.5rem; }
+  .form-section { padding: 16px; margin-bottom: 16px; }
+  .section-title { font-size: 1.1rem; flex-direction: column; align-items: flex-start; gap: 5px; }
+  .helper-text { margin-left: 0; }
+  input[type="file"]::file-selector-button { padding: 8px 16px; font-size: 0.85rem; }
+  .error-banner { width: 95%; padding: 0.875rem; flex-direction: column; gap: 0.5rem; }
+  .dismiss-error { align-self: flex-end; }
+  .quick-stats, .cgpa-section { gap: 15px; }
+  .stat-value { font-size: 1.3rem; }
+  .classification-badge { font-size: 1.3rem; }
+  .ai-tip-box { padding: 16px; }
+  .ai-tip-text { font-size: 0.9rem; padding: 12px; }
 }
 
+/* --- 7. Print-Friendly Styles --- */
 @media print {
   body {
-    background-color: #ffffff;
-    color: #000000;
+    background-color: #ffffff; /* White background for printing */
+    color: #000000; /* Black text */
   }
-  
+
+  /* Hide everything *except* the results container */
   .App-header {
     background: none;
     padding: 0;
-    justify-content: flex-start;
+    justify-content: flex-start; /* Align to top for print */
   }
   
   .upload-page,
-  .results-header .header-buttons,
+  .results-header .header-buttons, /* Hide all buttons */
   .ai-tip-box,
-  .charts-grid {
-    display: none !important;
+  .charts-grid,
+  .what-if-toggle { /* Hide what-if toggle */
+    display: none;
   }
-  
+
+  /* Ensure the results container takes up the whole page */
   .results-container {
     width: 100%;
     max-width: 100%;
     margin: 0;
-    padding: 20px;
+    padding: 0;
     border: none;
     box-shadow: none;
     animation: none;
-    color: #000;
+    color: #000; /* Black text for print */
     background-color: #ffffff;
-    page-break-after: avoid;
   }
-  
+
+  /* Adjust styles for better print readability */
   .results-header {
     border-bottom: 2px solid #000;
-    page-break-after: avoid;
   }
-  
   .results-header h2 {
     color: #000;
   }
   
   .student-info,
   .sgpa-highlight,
+  .chart-box,
   .subjects-table-box {
     background-color: #f9f9f9;
     border: 1px solid #ddd;
     color: #000;
-    page-break-inside: avoid;
   }
-  
+
   .sgpa-formula .sgpa-value,
   .stat-success {
-    color: #006400;
+    color: #006400; /* Dark green */
   }
   
   .stat-danger {
-    color: #cc0000;
+    color: #CC0000; /* Dark red */
   }
   
   .classification-badge {
@@ -1090,44 +1031,51 @@ tfoot tr {
   
   .sgpa-highlight p.sgpa-label,
   .stat-label,
-  .student-info p {
+  .student-info p,
+  .prediction-label {
     color: #333;
   }
   
   .stat-value,
   .student-info p strong,
-  .results-header h2 {
+  .prediction-value,
+  .prediction-value-small {
     color: #000;
   }
-  
+
+  /* Table print styles */
   table {
     min-width: 100%;
     font-size: 9pt;
-    page-break-inside: avoid;
   }
-  
   th, td {
     padding: 6px;
     border-bottom: 1px solid #ccc;
     color: #000;
   }
-  
   th {
     background-color: #eee;
   }
-  
   tfoot tr {
     background-color: #eee;
     border-top: 2px solid #000;
   }
-  
   .result-pass {
     color: #006400;
     background-color: transparent;
   }
-  
   .result-fail {
-    color: #cc0000;
+    color: #CC0000;
     background-color: transparent;
+  }
+  
+  /* Hide the what-if input in print */
+  .what-if-input {
+    display: none;
+  }
+  
+  /* Show the original total marks in print */
+  td[data-label="Total"]::after {
+    content: attr(data-original-total); /* We'd need to add this prop */
   }
 }

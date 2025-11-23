@@ -1,132 +1,136 @@
 import React, { useMemo } from 'react';
-import PropTypes from 'prop-types'; // Added for PropType validation
+import PropTypes from 'prop-types';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
-// Register Chart.js modules (as before)
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-// --- Options Object (Moved Outside - Improvement #4) ---
-// This avoids recreating the object on every render.
-// Also includes the new tooltip callback.
 const chartOptions = {
   responsive: true,
-  maintainAspectRatio: false, // Allows chart to fit our box
+  maintainAspectRatio: false,
+  cutout: '52%', // Much thicker ring
+  layout: {
+    padding: 0
+  },
   plugins: {
     legend: {
-      position: 'top',
+      position: 'right',
+      align: 'center',
       labels: {
-        color: '#c9d1d9', // Theme text color
-        padding: 15,
+        color: 'rgba(255, 255, 255, 0.85)',
+        padding: 16,
+        boxWidth: 14,
         font: {
-          size: 12
-        }
+          family: 'monospace',
+          size: 12,
+          weight: '500'
+        },
+        usePointStyle: true,
+        pointStyle: 'circle',
       }
     },
     tooltip: {
-      backgroundColor: 'rgba(0, 0, 0, 0.8)',
-      padding: 12,
-      bodyFont: {
+      backgroundColor: 'rgba(0, 0, 0, 0.95)',
+      titleColor: '#00f3ff',
+      bodyColor: '#fff',
+      borderColor: 'rgba(0, 243, 255, 0.4)',
+      borderWidth: 2,
+      padding: 16,
+      displayColors: true,
+      titleFont: {
         size: 14,
+        family: 'monospace',
+        weight: 'bold'
+      },
+      bodyFont: {
+        family: 'monospace',
+        size: 13,
       },
       callbacks: {
-        // This callback adds the percentage to the tooltip
-        label: function(context) {
+        label: function (context) {
           const label = context.label || '';
           const value = context.parsed || 0;
           const total = context.dataset.data.reduce((a, b) => a + b, 0);
           const percentage = ((value / total) * 100).toFixed(1);
-          return `${label}: ${value} Subjects (${percentage}%)`;
+          return ` ${label}: ${value} Points (${percentage}%)`;
         }
       }
     },
   },
+  elements: {
+    arc: {
+      borderWidth: 4,
+      borderColor: '#000000',
+      hoverBorderColor: '#00f3ff',
+      hoverBorderWidth: 4,
+      hoverOffset: 20,
+    }
+  }
 };
 
-// --- Data Processing Function (Updated) ---
 const processDataForChart = (subjects) => {
-  const gradeCounts = {};
-  
-  // Define grade order for logical sorting (Improvement #3)
-  const gradeOrder = ['O', 'A+', 'A', 'B+', 'B', 'C+', 'C', 'P', 'F'];
-  
-  subjects.forEach(subject => {
-    // We only want to chart *real* subjects, not non-credit ones (like BPEK459)
-    if (subject.credits > 0) {
-      const points = subject.points;
-      let gradeLabel = 'F';
-      if (points === 10) gradeLabel = 'O';
-      else if (points === 9) gradeLabel = 'A+';
-      else if (points === 8) gradeLabel = 'A';
-      else if (points === 7) gradeLabel = 'B+';
-      else if (points === 6) gradeLabel = 'B';
-      else if (points === 5) gradeLabel = 'C+';
-      else if (points === 4) gradeLabel = 'C';
-      else if (points === 3) gradeLabel = 'P';
+  const validSubjects = subjects.filter(s => s.credits > 0 && s.points > 0);
+  validSubjects.sort((a, b) => (b.credits * b.points) - (a.credits * a.points));
 
-      // Use the cleaner logic (from Improvement #1)
-      gradeCounts[gradeLabel] = (gradeCounts[gradeLabel] || 0) + 1;
-    }
-  });
+  const labels = validSubjects.map(s => s.code);
+  const data = validSubjects.map(s => s.credits * s.points);
 
-  // Sort by grade order (Improvement #3)
-  const sortedEntries = Object.entries(gradeCounts).sort((a, b) => {
-    return gradeOrder.indexOf(a[0]) - gradeOrder.indexOf(b[0]);
-  });
-  
-  const labels = sortedEntries.map(entry => entry[0]);
-  const data = sortedEntries.map(entry => entry[1]);
+  const neonColors = [
+    '#00f3ff', '#bd00ff', '#00ff9d', '#ff0055', '#ffbe0b',
+    '#ff5e00', '#d900ff', '#00ccff', '#ff9900', '#ccff00'
+  ];
+
+  const backgroundColors = validSubjects.map((_, i) => neonColors[i % neonColors.length]);
 
   return {
     labels: labels,
     datasets: [
       {
-        label: '# of Subjects',
+        label: 'Grade Points Contribution',
         data: data,
-        // New, better dark mode colors (Improvement #2)
-        backgroundColor: [
-          'rgba(75, 192, 192, 0.7)',   // Teal - O
-          'rgba(35, 134, 54, 0.7)',    // Green - A+
-          'rgba(54, 162, 235, 0.7)',   // Blue - A
-          'rgba(153, 102, 255, 0.7)',  // Purple - B+
-          'rgba(255, 206, 86, 0.7)',   // Yellow - B
-          'rgba(255, 159, 64, 0.7)',   // Orange - C+
-          'rgba(255, 99, 132, 0.7)',   // Red - C/F
-        ],
-        borderColor: [
-          'rgba(75, 192, 192, 1)',
-          'rgba(35, 134, 54, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(153, 102, 255, 1)',
-          'rgba(255, 206, 86, 1)',
-          'rgba(255, 159, 64, 1)',
-          'rgba(255, 99, 132, 1)',
-        ],
-        borderWidth: 1,
+        backgroundColor: backgroundColors,
+        borderWidth: 4,
+        borderColor: '#000',
       },
     ],
   };
 };
 
-// --- The React Component (Updated) ---
 function GradeDonutChart({ subjectData }) {
-  
-  // Memoize chartData so it only recalculates when subjectData changes (Improvement #1)
   const chartData = useMemo(() => processDataForChart(subjectData), [subjectData]);
 
-  // Pass the options object defined outside
-  return <Doughnut data={chartData} options={chartOptions} />;
+  // Calculate total points
+  const totalPoints = useMemo(() => {
+    return subjectData.reduce((acc, curr) => acc + (curr.credits * curr.points), 0);
+  }, [subjectData]);
+
+  return (
+    <div className="relative w-full h-full flex flex-col">
+      <div className="flex-1 relative">
+        <Doughnut
+          data={chartData}
+          options={chartOptions}
+        />
+      </div>
+      {/* Total Points Display Below Chart */}
+      <div className="text-center py-3 border-t border-white/10">
+        <div className="text-white/50 text-xs font-mono uppercase tracking-widest mb-1">Total Points</div>
+        <div className="text-3xl font-bold text-white" style={{ textShadow: '0 0 20px rgba(0, 243, 255, 0.4)' }}>
+          {totalPoints}
+        </div>
+      </div>
+    </div>
+  );
 }
 
-// Add PropTypes validation (Improvement #5)
 GradeDonutChart.propTypes = {
   subjectData: PropTypes.arrayOf(
     PropTypes.shape({
+      code: PropTypes.string.isRequired,
       points: PropTypes.number.isRequired,
       credits: PropTypes.number.isRequired,
     })
   ).isRequired,
 };
 
-// Memoize the entire component to prevent re-renders (Improvement #1)
 export default React.memo(GradeDonutChart);

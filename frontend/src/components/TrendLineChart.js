@@ -10,9 +10,9 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler
 } from 'chart.js';
 
-// Register all the modules a Line Chart needs
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -20,76 +20,114 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
-// Options object is outside the component for performance
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
+  interaction: {
+    mode: 'index',
+    intersect: false,
+  },
   plugins: {
     legend: {
       position: 'top',
+      align: 'end',
       labels: {
-        color: '#c9d1d9', // Theme text color
-        padding: 15,
+        color: 'rgba(255, 255, 255, 0.85)',
+        padding: 16,
+        boxWidth: 14,
+        font: {
+          family: 'monospace',
+          size: 12,
+          weight: '500'
+        },
+        usePointStyle: true,
+        pointStyle: 'circle',
       }
     },
     tooltip: {
-      backgroundColor: 'rgba(0, 0, 0, 0.8)',
-      padding: 12,
-      bodyFont: {
+      backgroundColor: 'rgba(0, 0, 0, 0.95)',
+      titleColor: '#00f3ff',
+      bodyColor: '#fff',
+      borderColor: 'rgba(0, 243, 255, 0.4)',
+      borderWidth: 2,
+      padding: 16,
+      displayColors: true,
+      titleFont: {
+        family: 'monospace',
         size: 14,
+        weight: 'bold'
+      },
+      bodyFont: {
+        family: 'monospace',
+        size: 13,
       },
       callbacks: {
-        label: function(context) {
-          return `SGPA: ${context.parsed.y}`;
+        label: function (context) {
+          return ` SGPA: ${context.parsed.y.toFixed(2)}`;
         }
       }
     },
   },
-  scales: { // Specific options for Line Charts
-    x: { // The X-axis (Semesters)
+  scales: {
+    x: {
       ticks: {
-        color: '#8b949e', // Theme secondary text color
+        color: 'rgba(255, 255, 255, 0.6)',
+        font: {
+          family: 'monospace',
+          size: 11
+        },
+        padding: 8
       },
       grid: {
-        color: 'rgba(255, 255, 255, 0.1)' // Theme border color
+        color: 'rgba(0, 243, 255, 0.08)',
+        lineWidth: 1
+      },
+      border: {
+        color: 'rgba(255, 255, 255, 0.2)'
       }
     },
-    y: { // The Y-axis (SGPA)
+    y: {
       ticks: {
-        color: '#8b949e',
+        color: 'rgba(255, 255, 255, 0.6)',
+        font: {
+          family: 'monospace',
+          size: 11
+        },
+        padding: 8,
+        stepSize: 1
       },
       grid: {
-        color: 'rgba(255, 255, 255, 0.1)'
+        color: 'rgba(0, 243, 255, 0.08)',
+        lineWidth: 1
       },
-      min: 0, // Set minimum SGPA to 0
-      max: 10, // Set maximum SGPA to 10
+      border: {
+        color: 'rgba(255, 255, 255, 0.2)'
+      },
+      min: 0,
+      max: 10,
     }
   }
 };
 
-// Data processing function is outside the component
 const processDataForChart = (predictionData) => {
-  // e.g., past_trend = [8.1, 7.5, 8.3, 7.0]
   const pastSGPAs = predictionData.past_trend || [];
   const predictedSGPA = predictionData.predicted_sgpa;
 
-  // Create labels: ["Sem 1", "Sem 2", "Sem 3", "Sem 4"]
   const labels = pastSGPAs.map((_, index) => `Sem ${index + 1}`);
-  
-  // This is the data for our solid line
-  const pastData = [...pastSGPAs];
-  
-  // This is the data for our dashed line
-  // [null, null, 7.0, 8.11]
-  const predictionDataPoints = new Array(pastSGPAs.length - 1).fill(null);
-  predictionDataPoints.push(pastSGPAs[pastSGPAs.length - 1]); // Connect to the last real SGPA
-  predictionDataPoints.push(predictedSGPA); // Add the new predicted point
 
-  // Add the new label for the predicted semester
-  labels.push(`Sem ${pastSGPAs.length + 1} (Pred)`);
+  // Past data - all actual SGPAs
+  const pastData = [...pastSGPAs];
+
+  // Prediction data - starts from last actual SGPA and connects to predicted
+  const predictionDataPoints = new Array(pastSGPAs.length - 1).fill(null);
+  predictionDataPoints.push(pastSGPAs[pastSGPAs.length - 1]);
+  predictionDataPoints.push(predictedSGPA);
+
+  labels.push(`Sem ${pastSGPAs.length + 1}`);
 
   return {
     labels: labels,
@@ -97,29 +135,58 @@ const processDataForChart = (predictionData) => {
       {
         label: 'Past SGPA',
         data: pastData,
-        borderColor: 'rgb(54, 162, 235)', // Blue
-        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-        tension: 0.1 // Makes the line slightly curved
+        borderColor: '#00f3ff', // Electric Blue
+        backgroundColor: (context) => {
+          const ctx = context.chart.ctx;
+          const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+          gradient.addColorStop(0, 'rgba(0, 243, 255, 0.3)');
+          gradient.addColorStop(1, 'rgba(0, 243, 255, 0.0)');
+          return gradient;
+        },
+        pointBackgroundColor: '#000',
+        pointBorderColor: '#00f3ff',
+        pointBorderWidth: 3,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+        pointHoverBorderWidth: 4,
+        borderWidth: 3,
+        tension: 0.4, // Smooth curves
+        fill: true
       },
       {
-        label: 'Predicted SGPA',
+        label: 'Predicted',
         data: predictionDataPoints,
-        borderColor: 'rgb(255, 159, 64)', // Orange
-        backgroundColor: 'rgba(255, 159, 64, 0.5)',
-        borderDash: [5, 5], // This makes the line dashed
-        tension: 0.1
+        borderColor: '#bd00ff', // Neon Purple
+        backgroundColor: (context) => {
+          const ctx = context.chart.ctx;
+          const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+          gradient.addColorStop(0, 'rgba(189, 0, 255, 0.3)');
+          gradient.addColorStop(1, 'rgba(189, 0, 255, 0.0)');
+          return gradient;
+        },
+        pointBackgroundColor: '#000',
+        pointBorderColor: '#bd00ff',
+        pointBorderWidth: 3,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+        pointHoverBorderWidth: 4,
+        borderWidth: 3,
+        borderDash: [8, 4], // Dashed line for prediction
+        tension: 0.4,
+        fill: true
       }
     ],
   };
 };
 
-// --- The React Component ---
 function TrendLineChart({ predictionData }) {
-  
-  // Memoize the data processing
   const chartData = useMemo(() => processDataForChart(predictionData), [predictionData]);
 
-  return <Line options={chartOptions} data={chartData} />;
+  return (
+    <div className="relative w-full h-full">
+      <Line options={chartOptions} data={chartData} />
+    </div>
+  );
 }
 
 TrendLineChart.propTypes = {
